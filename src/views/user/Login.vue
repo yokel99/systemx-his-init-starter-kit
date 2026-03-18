@@ -37,6 +37,29 @@
 						<el-row class="mb-3">
 							<el-button type="success" icon="User" round plain style="width: 100%" @click="router.push('/user/register')"> Sign Up </el-button>
 						</el-row>
+						<el-row class="mb-3" v-if="!!appState.params.google_oauth2">
+							<el-button round plain style="width: 100%" @click="redirectToGoogleOauth2"><svg-icon icon-name="icon-google" /> <span>Google Login</span> </el-button>
+						</el-row>
+					</el-form>
+
+					<el-form
+						v-if="!!userState.require2FA"
+						ref="login2faFormRef"
+						:model="verify2FA"
+						label-position="top"
+						size="large"
+						:label-width="'140px'"
+						@keyup.enter.prevent="login2FAForm(login2faFormRef)">
+						<el-form-item label="Two-Factor Authentication" prop="token" required>
+							<el-input v-model="verify2FA.token" type="text" :clearable="true" placeholder="Enter 6-digit code" />
+						</el-form-item>
+
+						<el-row class="mb-3">
+							<el-button type="primary" icon="Ticket" round plain style="width: 100%" @click.prevent="login2FAForm(login2faFormRef)">Verify</el-button>
+						</el-row>
+						<el-row class="mb-3">
+							<el-button type="info" icon="ArrowLeftBold" round plain style="width: 100%" @click="black2Login"> Go back </el-button>
+						</el-row>
 					</el-form>
 				</el-card>
 			</el-col>
@@ -49,7 +72,7 @@ import { useDark } from '@vueuse/core';
 import { computed, onMounted, ref, reactive, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import { type FormInstance } from 'element-plus';
-import { APP_IMG_LOGO, APP_LOGO_TYPE, APP_NAME, APP_SLOGAN, APP_SVG_LOGO, APP_VERSION, API_URL } from '~/config/AppConfig';
+import { APP_IMG_LOGO, APP_LOGO_TYPE, APP_NAME, APP_SVG_LOGO, API_URL } from '~/config/AppConfig';
 import { onWindowResizeHandler } from '~/utils/Util';
 import router from '~/routers';
 import { useAppStateStore } from '~/stores/AppState';
@@ -85,6 +108,11 @@ const loginModel = reactive<any>({
 	remember: !!username ? true : false,
 });
 
+const login2faFormRef = ref<FormInstance>();
+const verify2FA = reactive({
+	token: null,
+});
+
 const submitForm = (formEl: FormInstance | undefined) => {
 	if (!formEl) return;
 	formEl.validate(async (valid: any): Promise<void> => {
@@ -92,6 +120,26 @@ const submitForm = (formEl: FormInstance | undefined) => {
 			userState.login(loginModel);
 		} else {
 			// return false;
+		}
+	});
+};
+
+const redirectToGoogleOauth2 = () => {
+	window.location.href = API_URL + '/user/login/google';
+};
+
+const black2Login = () => {
+	userState.require2FA = false;
+};
+
+const login2FAForm = (formEl: FormInstance | undefined) => {
+	if (!formEl) return;
+	formEl.validate(async (valid: any): Promise<void> => {
+		if (valid) {
+			userState.login2fa({
+				token: verify2FA.token,
+				username: userState.user2Fa,
+			});
 		}
 	});
 };
@@ -105,7 +153,8 @@ const submitForm = (formEl: FormInstance | undefined) => {
 
 .dark .login-page {
 	// background-image: linear-gradient(to right, #ffecd2 0%, #fcb69f 100%);
-	background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15) 0%, rgba(0, 0, 0, 0.15) 100%),
+	background:
+		linear-gradient(to bottom, rgba(255, 255, 255, 0.15) 0%, rgba(0, 0, 0, 0.15) 100%),
 		radial-gradient(at top center, rgba(255, 255, 255, 0.4) 0%, rgba(0, 0, 0, 0.4) 120%) #989898;
 	background-blend-mode: multiply, multiply;
 }

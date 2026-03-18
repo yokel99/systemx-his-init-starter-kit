@@ -1,4 +1,7 @@
+import axios from 'axios';
+import { ElMessage } from 'element-plus';
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
+import { API_URL } from '~/config/AppConfig';
 import { useAppStateStore } from '~/stores/AppState';
 import { useConnectStateStore } from '~/stores/ConnectState';
 
@@ -128,6 +131,14 @@ const routes: Array<RouteRecordRaw> = [
 		},
 		component: () => import('~/views/modules/PublicApp.vue'),
 	},
+	{
+		path: '/user/enable-2fa',
+		name: 'enable-2fa',
+		meta: {
+			title: '2FA Enable',
+		},
+		component: () => import('~/views/user/TwoFactorEnable.vue'),
+	},
 ];
 
 const router = createRouter({
@@ -145,6 +156,57 @@ router.beforeEach(async (to, from) => {
 	const userState = useConnectStateStore();
 	const appState = useAppStateStore();
 	appState.loading = true;
+
+	if (!!to.query.auth && to.query.auth !== '') {
+		// const api = axios.create({
+		// 	withCredentials: true,
+		// });
+
+		await axios
+			.post(
+				API_URL + '/user/me',
+				{},
+				{
+					headers: {
+						Authorization: `Bearer ${to.query.auth}`,
+					},
+				}
+			)
+			.then((response) => {
+				if (!!response.data) {
+					localStorage.setItem('user', JSON.stringify(response.data));
+					userState.user = response.data;
+
+					if (!!userState.user && !!userState.user.two_factor_enabled) {
+						userState.require2FA = true;
+					}
+
+					if (!!userState.user && !!userState.user.connectInfo) {
+						userState.connectInfo = userState.user.connectInfo;
+					} else {
+						userState.connectInfo = { license_token: '', register_id: '' };
+					}
+
+					userState.startRefreshTokenTimer();
+					if (!!userState.returnUrl) {
+						router.push(userState.returnUrl);
+					} else {
+						router.push('/');
+					}
+				} else {
+					ElMessage.warning('Login failed.');
+					router.push('/user/login');
+				}
+			})
+			.catch((error) => {
+				if (!!error.response && !!error.response.data && !!error.response.data.message) {
+					ElMessage.warning(error.response.data.message);
+				} else {
+					ElMessage.warning(error.message);
+				}
+				router.push('/user/login');
+			});
+	}
 
 	if (authRequired && !userState.user) {
 		userState.returnUrl = to.fullPath;

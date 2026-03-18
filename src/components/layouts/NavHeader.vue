@@ -50,6 +50,9 @@
 			<el-menu-item index="/user/change-password" @click="router.push('/user/change-password')">
 				<el-icon><Key /></el-icon> Change Password
 			</el-menu-item>
+			<el-menu-item index="enable-2fa" @click="router.push('/user/enable-2fa')">
+				<el-icon><Iphone /></el-icon> Two-Factor Setup
+			</el-menu-item>
 
 			<el-divider style="margin: 5px 0" v-can.any="['super', 'admin', 'manager']" />
 
@@ -134,7 +137,7 @@
 			<el-descriptions-item label="Send By">{{ options.notifySelect.created_by.name }}</el-descriptions-item>
 			<el-descriptions-item label="Date">{{ dayjs(options.notifySelect.created_at).format('DD/MM/YYYY HH:mm') }}</el-descriptions-item>
 		</el-descriptions>
-		<sd-html-editor v-if="!!options.notifySelect.detail" v-model="options.notifySelect.detail" :mode="'mini'" :readonly="true" :user-state="(userState as any)"></sd-html-editor>
+		<sd-html-editor v-if="!!options.notifySelect.detail" v-model="options.notifySelect.detail" :mode="'mini'" :readonly="true" :user-state="userState as any"></sd-html-editor>
 		<template #footer>
 			<div class="dialog-footer">
 				<el-button @click="options.showDetail = false">Close</el-button>

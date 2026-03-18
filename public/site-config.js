@@ -1,4 +1,4 @@
-const SERVER_HOST = 'http://127.0.0.1:3009';
+const SERVER_HOST = 'http://localhost:3005';
 const API_PATH = '/api';
 const ASSETS_PATH = '/assets';
 const API_URL = SERVER_HOST + API_PATH;

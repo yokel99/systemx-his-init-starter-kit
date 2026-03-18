@@ -22,6 +22,8 @@ export const useConnectStateStore = defineStore('connectState', {
 	state: () => ({
 		user: (localStorage.getItem('connect') ? JSON.parse(localStorage.getItem('connect') || '{}') : null) as SdUserLogin | null,
 		returnUrl: null as any,
+		require2FA: false,
+		user2Fa: '',
 		refreshTokenTimeout: null as any,
 		host: API_URL, //API_URL
 		router: useRouter(),
@@ -138,22 +140,63 @@ export const useConnectStateStore = defineStore('connectState', {
 			await axios
 				.post(`${this.host}/user/login`, data)
 				.then((response) => {
-					// If the login is successful, save the user data and token
-					localStorage.setItem('connect', JSON.stringify(response.data));
-					// localStorage.setItem('user', JSON.stringify(response.data));
-					this.host = API_URL;
-					this.user = response.data;
-					if (!!this.user && !!this.user.connectInfo) {
-						this.connectInfo = this.user.connectInfo;
-					} else {
-						this.connectInfo = { license_token: '', register_id: '' };
-					}
+					if (!!response.data && !!response.data.user_id) {
+						if (!!response.data.two_factor_enabled) {
+							this.require2FA = true;
+							this.user2Fa = response.data.username || response.data.user_id;
+						} else {
+							localStorage.setItem('user', JSON.stringify(response.data));
+							this.user = response.data;
+							if (!!this.user && !!this.user.connectInfo) {
+								this.connectInfo = this.user.connectInfo;
+							} else {
+								this.connectInfo = { license_token: '', register_id: '' };
+							}
 
-					this.startRefreshTokenTimer();
-					if (!!this.returnUrl) {
-						this.router.push(this.returnUrl);
+							this.startRefreshTokenTimer();
+							if (!!this.returnUrl) {
+								this.router.push(this.returnUrl);
+							} else {
+								this.router.push('/');
+							}
+						}
 					} else {
-						this.router.push('/');
+						ElMessage.warning('User data not found.');
+					}
+				})
+				.catch((error) => {
+					// If the login fails, display an error message
+					// console.log(error);
+					if (!!error.response && !!error.response.data && !!error.response.data.message) {
+						ElMessage.warning(error.response.data.message);
+					} else {
+						ElMessage.warning(error.message);
+					}
+				});
+		},
+		async login2fa(data: any) {
+			await axios
+				.post(`${API_URL}/user/login2fa`, data)
+				.then((response) => {
+					// If the login is successful, save the user data and token
+
+					if (!!response.data && !!response.data.user_id) {
+						localStorage.setItem('user', JSON.stringify(response.data));
+						this.user = response.data;
+						if (!!this.user && !!this.user.connectInfo) {
+							this.connectInfo = this.user.connectInfo;
+						} else {
+							this.connectInfo = { license_token: '', register_id: '' };
+						}
+
+						this.startRefreshTokenTimer();
+						if (!!this.returnUrl) {
+							this.router.push(this.returnUrl);
+						} else {
+							this.router.push('/');
+						}
+					} else {
+						ElMessage.warning('User data not found.');
 					}
 				})
 				.catch((error) => {
@@ -183,7 +226,7 @@ export const useConnectStateStore = defineStore('connectState', {
 						ElMessage.warning(error.message);
 					}
 				});
-
+			this.require2FA = false;
 			this.user = null;
 			localStorage.removeItem('connect');
 

@@ -18,6 +18,7 @@ export interface SdUserLogin {
 	site: { code: string; name: string };
 	unit: { code: string; name: string };
 	connectInfo?: { license_token: string; register_id: string };
+	two_factor_enabled?: boolean;
 }
 
 export interface SdUserModel {

@@ -9,6 +9,8 @@ starter-kit version
 - 70 widget/input
 - Full implement Create Form, UI, SQL, API, Report, App, export/import/restore on online
 - Fully customizable
+- Two-Factor
+- Google OAuth2
 
 Use with https://github.com/appxq/init-server-sdk
 
@@ -28,7 +30,7 @@ npm install sd-render@latest
 ## Config file site-config.js
 
 ```
-const SERVER_HOST = 'http://127.0.0.1:3009';
+const SERVER_HOST = 'http://localhost:3009';
 const API_PATH = '/api';
 const ASSETS_PATH = '/assets';
 const API_URL = SERVER_HOST + API_PATH;

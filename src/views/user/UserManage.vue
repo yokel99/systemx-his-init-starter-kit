@@ -15,7 +15,7 @@ import SdGrid from '~/components/input3/SdGrid.vue'; import SdGrid from '~/compo
 			:insert-before="handleInsert"
 			:view-before="handleView"
 			:after-delete="afterDelete">
-			<el-table-column fixed label="" width="90" align="center">
+			<el-table-column fixed label="" width="180" align="center">
 				<template #default="scope">
 					<el-button
 						v-if="!!scope.row['_id']"
@@ -23,15 +23,17 @@ import SdGrid from '~/components/input3/SdGrid.vue'; import SdGrid from '~/compo
 						:type="scope.row.flags == 1 ? 'danger' : 'success'"
 						size="small"
 						title="Active"
-						@click.prevent="handleActive(scope.row, scope.$index)"
-						>{{ scope.row.flags == 1 ? 'Block' : 'Active' }}</el-button
-					>
+						@click.prevent="handleActive(scope.row, scope.$index)">
+						{{ scope.row.flags == 1 ? 'Block' : 'Active' }}
+					</el-button>
+
+					<el-button v-if="!!scope.row['_id']" plain :type="'warning'" size="small" title="Disable 2FA" @click.prevent="handle2Fa(scope.row, scope.$index)"> Disable 2FA </el-button>
 				</template>
 			</el-table-column>
 			<!-- <el-table-column type="index" align="center" :index="(index: number) => index + Number(refGrid.rowStartLabel)" /> -->
 			<SdGridColumnIndex :ref-sdgrid="refGrid" fixed />
-			<el-table-column prop="username" label="UserName" width="140" fixed sortable />
-			<el-table-column prop="email" label="E-Mail" min-width="180" fixed sortable />
+			<el-table-column prop="username" label="UserName" width="200" fixed sortable />
+			<el-table-column prop="email" label="E-Mail" min-width="200" fixed sortable />
 			<el-table-column prop="profile.fname" label="First Name" width="180" sortable />
 			<el-table-column prop="profile.lname" label="Last Name" width="180" sortable />
 
@@ -180,6 +182,12 @@ function handleActive(row: any, index: number) {
 	const value = row.flags == 1 ? 0 : 1;
 	refGrid.value?.handleEditField(row, index, { flags: value }, (rowData: any) => {
 		rowData.flags = value;
+	});
+}
+
+function handle2Fa(row: any, index: number) {
+	refGrid.value?.handleEditField(row, index, { two_factor_enabled: false }, (rowData: any) => {
+		rowData.two_factor_enabled = false;
 	});
 }
 

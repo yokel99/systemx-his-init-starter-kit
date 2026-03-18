@@ -8,6 +8,13 @@ export const initApp = async function () {
 		await appState.getParams();
 
 		const userState = useConnectStateStore();
+		if (!!userState.user) {
+			if (!!userState.user.two_factor_enabled) {
+				userState.require2FA = true;
+			} else {
+				userState.require2FA = false;
+			}
+		}
 		await userState.refreshToken();
 
 		if (!!userState.user && !!userState.user.token) {
