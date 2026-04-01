@@ -13,6 +13,7 @@ starter-kit version
 - Google OAuth2
 - Support vercel https://vercel.com/
 
+Builder Tool https://builder.initcraft.com/
 Use with https://github.com/appxq/init-server-sdk
 
 ## Add Upstream (Fork)
