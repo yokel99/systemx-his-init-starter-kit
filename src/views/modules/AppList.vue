@@ -1,5 +1,5 @@
 <template>
-	<SdAppListAsync :search-enable="true" :limit="120" title="Apps" :user-state="(userState as any)" />
+	<SdAppListAsync :search-enable="true" :limit="120" title="Apps" :user-state="userState" />
 </template>
 
 <script lang="ts" setup>
@@ -17,7 +17,13 @@ const SdAppListAsync = defineAsyncComponent({
 	timeout: 10000,
 });
 
-const userState = useConnectStateStore();
+const userState: any = useConnectStateStore();
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss">
+.listicon-item {
+	.el-avatar {
+		background-color: transparent;
+	}
+}
+</style>

@@ -1,8 +1,8 @@
 <template>
 	<el-menu
-		class="el-menu-demo pl-5 pr-5"
+		class="el-menu-demo pl-2 pr-2"
 		mode="horizontal"
-		:ellipsis="false"
+		:ellipsis="options.isEllipsis"
 		menu-trigger="hover"
 		:router="false"
 		:default-active="route.fullPath"
@@ -10,15 +10,25 @@
 		:style="{ backgroundColor: appState.params['navbar_bg_color'] || undefined, borderBottomColor: appState.params['navbar_border_color'] || undefined }">
 		<el-sub-menu index="0" class="menu-custom" @click="router.push('/')" popper-class="menu-custom-poper">
 			<template #title>
-				<span class="logo-container" style="position: relative; width: 250px; min-width: 250px; cursor: pointer">
-					<el-avatar v-if="options.logoType === 'img'" shape="square" :size="32" :src="APP_IMG_LOGO" />
-					<SvgIcon v-else :icon-name="!!appState.params.app_svg_logo ? appState.params.app_svg_logo : APP_SVG_LOGO" class="mr-1 text-18 icon-logo" />
+				<span class="logo-container" style="display: flex; align-items: center; gap: 10px; cursor: pointer; min-width: max-content">
+					<div style="flex-shrink: 0; display: flex; align-items: center">
+						<el-avatar v-if="options.logoType === 'img'" shape="square" :size="42" :src="APP_IMG_LOGO" />
+						<SvgIcon v-else :icon-name="!!appState.params.app_svg_logo ? appState.params.app_svg_logo : APP_SVG_LOGO" class="mr-1 text-22 icon-logo" />
+					</div>
 
-					<span class="text-6 mr-2" style="position: absolute; top: -5px; left: 38px">
-						{{ !!appState.params.app_name ? appState.params.app_name : APP_NAME }}
-						<span class="text-4 mt-2">{{ !!appState.params.app_version ? appState.params.app_version : APP_VERSION }}</span>
-					</span>
-					<span class="text-3" style="position: absolute; bottom: -9px; left: 38px">{{ !!appState.params.app_slogan ? appState.params.app_slogan : APP_SLOGAN }}</span>
+					<div style="display: flex; flex-direction: column; line-height: 1.2; flex-shrink: 0">
+						<div style="display: flex; align-items: baseline; gap: 5px">
+							<span class="text-6" style="white-space: nowrap">
+								{{ !!appState.params.app_name ? appState.params.app_name : APP_NAME }}
+							</span>
+							<span class="text-4" style="white-space: nowrap">
+								{{ !!appState.params.app_version ? appState.params.app_version : APP_VERSION }}
+							</span>
+						</div>
+						<span class="text-3" style="white-space: nowrap; margin-top: -2px">
+							{{ !!appState.params.app_slogan ? appState.params.app_slogan : APP_SLOGAN }}
+						</span>
+					</div>
 				</span>
 			</template>
 			<template #default></template>
@@ -137,7 +147,7 @@
 			<el-descriptions-item label="Send By">{{ options.notifySelect.created_by.name }}</el-descriptions-item>
 			<el-descriptions-item label="Date">{{ dayjs(options.notifySelect.created_at).format('DD/MM/YYYY HH:mm') }}</el-descriptions-item>
 		</el-descriptions>
-		<sd-html-editor v-if="!!options.notifySelect.detail" v-model="options.notifySelect.detail" :mode="'mini'" :readonly="true" :user-state="userState as any"></sd-html-editor>
+		<sd-html-editor v-if="!!options.notifySelect.detail" v-model="options.notifySelect.detail" :mode="'mini'" :readonly="true" :user-state="userState"></sd-html-editor>
 		<template #footer>
 			<div class="dialog-footer">
 				<el-button @click="options.showDetail = false">Close</el-button>
@@ -183,7 +193,7 @@ const SettingConfigAsync = defineAsyncComponent({
 // const SettingConfigAsync = defineAsyncComponent(() => import('./SettingConfig.vue'));
 
 const appState = useAppStateStore();
-const userState = useConnectStateStore();
+const userState: any = useConnectStateStore();
 const route = useRoute();
 const route_name: any = computed(() => route.name || 'sdform');
 // const route_title = computed(() => route.meta.title || 'SdForm');
@@ -203,7 +213,7 @@ const options = reactive({
 	showDetail: false,
 	popupWidth: '50%',
 	drawerEnable: false,
-
+	isEllipsis: false,
 	configShow: false as boolean,
 });
 
@@ -212,7 +222,7 @@ onMounted(() => {
 	onWindowResizeHandler(async () => {
 		await nextTick(() => {
 			options.scrollerHeight = window.innerHeight - 60;
-
+			options.isEllipsis = window.innerWidth < 1024;
 			options.popupWidth = responsivePopup('50%');
 		});
 	});
@@ -389,7 +399,7 @@ const updateViewNotify = async () => {
 }
 .el-sub-menu.menu-custom .el-icon.icon-logo {
 	width: 35px;
-	margin-right: 10px;
+	height: 35px;
 }
 
 .menu-custom-poper {

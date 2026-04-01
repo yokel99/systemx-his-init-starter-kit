@@ -42,12 +42,13 @@ export const useConnectStateStore = defineStore('connectState', {
 			let protocol = 'ws';
 			let domain = !!hostArr[1] ? hostArr[1] : hostArr[0];
 
-			if (!!hostArr[0] && hostArr[0] === 'https') {
+			if (!!hostArr[0] && hostArr[0].includes('https')) {
 				protocol = 'wss';
 			}
+
 			let wsTimeout: any = null;
 			let connStatus: boolean = false;
-			const socket: WebSocket = new WebSocket(`${protocol}://${domain}/v1/ws/${channel}?client=${clientId}&widget=${widgetId}&token=${this.user?.token}`, ['json']);
+			const socket: WebSocket = new WebSocket(`${protocol}://${domain}/v1/ws/${channel}?client=${clientId}&widget=${widgetId}&token=${this.user?.token}`); //, ['json']
 
 			socket.onmessage = (event) => {
 				if (!!onMessage) {
@@ -110,12 +111,19 @@ export const useConnectStateStore = defineStore('connectState', {
 		},
 		getAvatar() {
 			if (!!this.user && !!this.user.avatar && this.user.avatar[0]) {
-				const avatar: any = this.user.avatar[0];
-				console.log(window.APP_CONFIG.ASSETS_URL + '/users/' + avatar.response.fileName);
-				if (!!avatar.response) {
-					return window.APP_CONFIG.ASSETS_URL + '/users/' + avatar.response.fileName;
+				// const avatar: any = this.user.avatar[0];
+				// console.log(window.APP_CONFIG.ASSETS_URL + '/users/' + avatar.response.fileName);
+				// if (!!avatar.response) {
+				// 	return window.APP_CONFIG.ASSETS_URL + '/users/' + avatar.response.fileName;
+				// }
+				if (!!this.user && !!this.user.avatar && this.user.avatar[0]) {
+					const avatar: any = this.user.avatar[0];
+					if (!!avatar.url) {
+						return avatar.url;
+					}
 				}
 			}
+
 			return window.APP_CONFIG.ASSETS_URL + '/image/nouser.jpeg';
 			// if (!!this.user && !!this.user.avatar && this.user.avatar[0] && !!this.host) {
 			// 	const hostSplit = this.host.split('/');
@@ -302,6 +310,17 @@ export const useConnectStateStore = defineStore('connectState', {
 		},
 		startRefreshTokenTimer() {
 			let timeout = REFRESH_TOKEN;
+
+			if (!this.user || !this.user.token) return;
+
+			const jwtBase64 = this.user.token.split('.')[1];
+			if (!!jwtBase64) {
+				const payload = JSON.parse(atob(jwtBase64));
+
+				const expires = new Date(payload.exp * 1000);
+				timeout = expires.getTime() - Date.now() - 60 * 1000;
+			}
+
 			this.refreshTokenTimeout = setTimeout(this.refreshToken, timeout);
 		},
 		stopRefreshTokenTimer() {

@@ -1,5 +1,5 @@
 <template>
-	<SdAppViewerAsync v-if="!!appId" :custom-components="components" :user-state="(userState as any)" />
+	<SdAppViewerAsync v-if="!!appId" :custom-components="components" :user-state="userState" />
 </template>
 
 <script lang="ts">
@@ -25,7 +25,7 @@ export default defineComponent({
 	props: {},
 	data() {
 		return {
-			userState: useConnectStateStore(),
+			userState: useConnectStateStore() as any,
 			route: useRoute(),
 			appId: '' as any,
 			tabId: '' as any,
@@ -50,5 +50,10 @@ export default defineComponent({
 <style lang="scss">
 .app_content {
 	margin-bottom: 15px;
+}
+.app_title {
+	.el-avatar {
+		background-color: transparent;
+	}
 }
 </style>
