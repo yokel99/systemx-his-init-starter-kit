@@ -103,38 +103,90 @@ export default defineConfig({
 							// แยกเฉพาะ lib ใหญ่ ๆ ที่มีผลจริง
 							if (
 								[
-									'element-plus',
-									'dayjs',
+									// 'dayjs',
 									'ace-builds',
-									'axios',
+									// 'axios',
 									'xlsx',
 									'chart.js',
 									'pdfmake',
 									'@vue-flow/core',
 									'docx',
-									'dompurify',
-									'html-to-pdfmake',
-									'json-editor-vue',
-									'vuedraggable',
-									'vue-simple-acl',
-									'qrcode',
+									// 'dompurify',
+									// 'html-to-pdfmake',
+									// 'json-editor-vue',
+									// 'vuedraggable',
+									// 'vue-simple-acl',
 									'sass',
 									'slugify',
 									'fs-extra',
 									'fast-glob',
-									'dagre',
-									'crypto-ts',
-									'@codemirror',
+									// 'dagre',
+									// 'crypto-ts',
 									'vanilla-jsoneditor',
+									'highlight.js',
+									// 'lodash',
 								].includes(pkg)
 							)
 								return pkg;
 
-							if (pkg === 'vue' || pkg === 'vue-router' || pkg === 'pinia' || pkg === '@vue') return 'vue-core';
+							if (id.includes('element-plus')) return 'element-plus';
+
+							if (pkg === 'vue' || pkg === 'vue-router' || pkg === 'pinia' || id.includes('vue')) return 'vue-core';
 							//@tiptap
 							if (pkg.search('@tiptap') !== -1) return 'tiptap';
-							// รวม lib ย่อย ๆ ทั้งหมดไว้ใน vendor
+
+							if (id.includes('ajv/dist')) {
+								return 'ajv';
+							}
+
+							if (id.includes('codemirror')) {
+								return 'codemirror';
+							}
+
+							if (id.includes('prosemirror')) {
+								return 'prosemirror';
+							}
+
+							if (id.includes('apexcharts')) {
+								return 'apexcharts';
+							}
+
+							if (id.includes('sd-render')) {
+								return 'sd-render';
+							}
+
 							return 'vendor';
+						}
+
+						return;
+					} else {
+						if (id.includes('font/')) {
+							return 'font';
+						}
+
+						if (id.includes('icons/') || id.includes('svg-icons-register')) {
+							return 'icons';
+						}
+
+						// if (id.includes('user/')) {
+						// 	return 'sd-user';
+						// }
+
+						if (
+							id.includes('core/') ||
+							id.includes('user/') ||
+							id.includes('sdform/') ||
+							id.includes('modules/') ||
+							id.includes('custom-widget') ||
+							id.includes('types') ||
+							id.includes('config') ||
+							id.includes('core') ||
+							id.includes('routers') ||
+							id.includes('stores') ||
+							id.includes('utils') ||
+							id.includes('layouts')
+						) {
+							return 'sd-core';
 						}
 
 						return;
