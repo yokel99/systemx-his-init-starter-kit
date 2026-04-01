@@ -11,8 +11,29 @@ starter-kit version
 - Fully customizable
 - Two-Factor
 - Google OAuth2
+- Support vercel https://vercel.com/
 
 Use with https://github.com/appxq/init-server-sdk
+
+## Add Upstream (Fork)
+
+```
+git remote add upstream https://github.com/appxq/init-starter-kit.git
+```
+
+```
+git remote -v
+```
+
+## update last version
+
+```
+git fetch upstream
+```
+
+```
+git merge upstream/main
+```
 
 ## Install
 
