@@ -66,3 +66,11 @@ const APP_NAME = 'My StarterKit';
 const APP_SLOGAN = 'Powered by initCraft ©2025';
 const APP_VERSION = 'v1.5.0';
 ```
+
+## Deploy vercel https://vercel.com/
+
+- Edit SERVER_HOST site-config.js
+- Add new->project
+- Import Git Repository
+- Application Preset = vite
+- deploy
