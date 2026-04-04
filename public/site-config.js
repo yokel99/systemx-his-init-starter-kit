@@ -1,6 +1,6 @@
 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
-const SERVER_HOST = isLocal ? 'http://localhost:3005' : 'https://api.initcraft.com';
+const SERVER_HOST = isLocal ? 'http://localhost:3005' : 'http://122.155.197.183:3005';
 const API_PATH = '/api';
 const ASSETS_PATH = '/assets';
 const API_URL = SERVER_HOST + API_PATH;
