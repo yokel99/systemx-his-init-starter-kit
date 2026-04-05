@@ -18,6 +18,31 @@ export type ConnectWs = {
 	wsSend: (data: wsDataSend) => void;
 };
 
+axios.interceptors.response.use(
+	(response) => response,
+	async (error) => {
+		if (error.response && error.response.status === 401) {
+			const userState = useConnectStateStore();
+
+			userState.require2FA = false;
+			userState.user = null;
+
+			if (!!userState.wsConn) {
+				userState.wsConn?.wsDisconnect();
+			}
+
+			localStorage.removeItem('connect');
+
+			userState.stopRefreshTokenTimer();
+
+			window.location.href = '/user/login';
+
+			ElMessage.error('Session expired. Please login again.');
+		}
+		return Promise.reject(error);
+	}
+);
+
 export const useConnectStateStore = defineStore('connectState', {
 	state: () => ({
 		user: (localStorage.getItem('connect') ? JSON.parse(localStorage.getItem('connect') || '{}') : null) as SdUserLogin | null,
@@ -46,6 +71,7 @@ export const useConnectStateStore = defineStore('connectState', {
 				protocol = 'wss';
 			}
 
+			let pingInterval: any = null;
 			let wsTimeout: any = null;
 			let connStatus: boolean = false;
 			const socket: WebSocket = new WebSocket(`${protocol}://${domain}/v1/ws/${channel}?client=${clientId}&widget=${widgetId}&token=${this.user?.token}`); //, ['json']
@@ -59,6 +85,11 @@ export const useConnectStateStore = defineStore('connectState', {
 			socket.onopen = (event) => {
 				connStatus = true;
 				console.log(`(channel:${channel}) ` + 'onSockerOpen...');
+				pingInterval = setInterval(() => {
+					if (socket.readyState === WebSocket.OPEN) {
+						socket.send(JSON.stringify({ type: 'ping' }));
+					}
+				}, 45000);
 			};
 
 			socket.onerror = (event) => {
@@ -70,6 +101,8 @@ export const useConnectStateStore = defineStore('connectState', {
 
 			socket.onclose = (event) => {
 				console.log(`(channel:${channel}) ` + 'onSockerClose...');
+
+				if (pingInterval) clearInterval(pingInterval);
 
 				if (!!wsTimeout) {
 					clearTimeout(wsTimeout);
@@ -91,6 +124,7 @@ export const useConnectStateStore = defineStore('connectState', {
 				if (!!wsTimeout) {
 					clearTimeout(wsTimeout);
 				}
+				if (pingInterval) clearInterval(pingInterval);
 			};
 
 			const wsSend = (data: wsDataSend) => {
@@ -145,6 +179,7 @@ export const useConnectStateStore = defineStore('connectState', {
 			} else {
 				localStorage.removeItem('user-remember');
 			}
+			data.conn = false;
 			await axios
 				.post(`${this.host}/user/login`, data)
 				.then((response) => {

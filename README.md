@@ -67,6 +67,12 @@ const APP_SLOGAN = 'Powered by initCraft ©2025';
 const APP_VERSION = 'v1.5.0';
 ```
 
+## Config .env
+
+```
+VITE_PUBLIC_KEY=
+```
+
 ## Deploy vercel https://vercel.com/
 
 - Edit SERVER_HOST site-config.js

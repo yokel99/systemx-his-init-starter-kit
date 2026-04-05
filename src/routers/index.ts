@@ -211,11 +211,13 @@ router.beforeEach(async (to, from) => {
 			});
 	}
 
+	if (!authRequired && !!userState.user) {
+		return '/';
+	}
+
 	if (authRequired && !userState.user) {
 		userState.returnUrl = to.fullPath;
 		return '/user/login';
-	} else if (publicPages.includes(to.path) && !!userState.user) {
-		return '/';
 	}
 });
 

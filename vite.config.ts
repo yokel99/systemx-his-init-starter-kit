@@ -10,6 +10,8 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import Unocss from 'unocss/vite';
 import { presetAttributify, presetIcons, presetWind3, transformerDirectives, transformerVariantGroup } from 'unocss';
 // https://vitejs.dev/config/
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
+
 export default defineConfig({
 	resolve: {
 		alias: {
@@ -42,7 +44,14 @@ export default defineConfig({
 		vueJsx({
 			// options are passed on to @vue/babel-plugin-jsx
 		}),
-
+		nodePolyfills({
+			// Enable specific polyfills as needed
+			globals: {
+				Buffer: true,
+				global: true,
+				process: true,
+			},
+		}),
 		createSvgIconsPlugin({
 			// Specify the icon folder to be cached
 			iconDirs: [resolve(process.cwd(), 'src/icons/svg')],
