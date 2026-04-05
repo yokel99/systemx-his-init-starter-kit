@@ -1,0 +1,8 @@
+node_modules
+dist
+dist-lib
+dist-sdlib
+dist-ssr
+.git
+*.log
+stats.html
