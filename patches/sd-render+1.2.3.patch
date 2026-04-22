@@ -1,0 +1,53 @@
+diff --git a/node_modules/sd-render/sd-render-CNzGzWA1.js b/node_modules/sd-render/sd-render-CNzGzWA1.js
+index beb98cb..dab41df 100644
+--- a/node_modules/sd-render/sd-render-CNzGzWA1.js
++++ b/node_modules/sd-render/sd-render-CNzGzWA1.js
+@@ -10894,24 +10894,35 @@ const xd = (e, i) => {
+     return "";
+   }
+ }, ea = async function(e, i) {
+-  try {
+-    if (e) {
+-      const { key: t, iv: l, data: r } = e;
+-      let h = `-----BEGIN PUBLIC KEY-----
++  if (!e) return {};
++  const { key: t, iv: l, data: r } = e;
++  const KEYS = [
++    `-----BEGIN PUBLIC KEY-----
+ MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCJUKaPfUKzZtBiKOsKYYGCZCFr
+ EJEOZ+q/iJBak+bXAN9HVvlL/9u+rNy+HlEtWJAffA2MIXkXV8lzAqeMFmjjee/N
+ FDOtUsg8r6dqxCMULJpEnZ2ou370CL+XDlxn3oKorwM7LPTe2qr1DTvwVvLJx2hl
+ tjverk8X5A9+IBcvMQIDAQAB
+------END PUBLIC KEY-----`;
+-      i.connectInfo && i.connectInfo.public_key && (h = i.connectInfo.public_key);
+-      let s = _d(h, "public");
+-      const u = xd(t, s), p = je(u), g = je(l), P = kt.decrypt(r, p, { iv: g, mode: Pt.CBC, padding: $t.PKCS7 }).toString(xe.Utf8);
+-      return JSON.parse(P);
+-    }
+-    return {};
+-  } catch {
+-    return {};
++-----END PUBLIC KEY-----`,
++    `-----BEGIN PUBLIC KEY-----
++MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC4dfnGQC4BPSNZLsVwzXU08ylM
++GOJjve73yo71rDfHRqnGDigLgAyoy38JmNoNPzvvNTSoI6nkkf/rEnyexnW3FbBV
+++HVop5n7+oS78wtBLllKEGMHioN263sFy9eeSt6iifHUHr0Ip058IF2W9OTQn2OZ
++4vWftbQSXfQW+6kciQIDAQAB
++-----END PUBLIC KEY-----`,
++    i.connectInfo && i.connectInfo.public_key
++  ].filter(Boolean);
++  for (const candidate of KEYS) {
++    try {
++      const s = _d(candidate, "public");
++      const u = xd(t, s);
++      if (!u) continue;
++      const p = je(u), g = je(l);
++      const P = kt.decrypt(r, p, { iv: g, mode: Pt.CBC, padding: $t.PKCS7 }).toString(xe.Utf8);
++      const parsed = JSON.parse(P);
++      if (parsed) return parsed;
++    } catch (_) { /* try next key */ }
+   }
++  return {};
+ };
+ function je(e) {
+   return xe.Hex.parse(e);
